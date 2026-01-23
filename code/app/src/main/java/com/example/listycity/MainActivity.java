@@ -1,6 +1,8 @@
 package com.example.listycity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +23,10 @@ public class MainActivity extends AppCompatActivity implements AddCityFragment.A
         cityAdapter.notifyDataSetChanged();
     }
 
+    public void editCity() {
+        cityAdapter.notifyDataSetChanged();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,15 @@ public class MainActivity extends AppCompatActivity implements AddCityFragment.A
         cityList = findViewById(R.id.city_list);
         cityAdapter = new CityArrayAdapter(this, dataList);
         cityList.setAdapter(cityAdapter);
+
+        cityList.setOnItemClickListener((parent, view, position, id) -> {
+            City selectedCity = dataList.get(position);
+
+            AddCityFragment fragment =
+                    AddCityFragment.newInstance(selectedCity);
+
+            fragment.show(getSupportFragmentManager(), "Edit City");
+        });
 
         FloatingActionButton fab = findViewById(R.id.button_add_city);
         fab.setOnClickListener(v -> {

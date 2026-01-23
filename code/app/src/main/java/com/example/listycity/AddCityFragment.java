@@ -15,8 +15,21 @@ import androidx.fragment.app.DialogFragment;
 public class AddCityFragment extends DialogFragment {
     interface AddCityDialogListener {
         void addCity(City city);
+        void editCity();
     }
     private AddCityDialogListener listener;
+    private City editCity;
+
+    public static AddCityFragment newInstance(City city) {
+        Bundle args = new Bundle();
+        args.putSerializable("city", city);
+
+        AddCityFragment fragment = new AddCityFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public AddCityFragment() {};
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -35,15 +48,32 @@ public class AddCityFragment extends DialogFragment {
                     LayoutInflater.from(getContext()).inflate(R.layout.fragment_add_city, null);
             EditText editCityName = view.findViewById(R.id.edit_text_city_text);
             EditText editProvinceName = view.findViewById(R.id.edit_text_province_text);
+
+            if (getArguments() != null) {
+                editCity = (City) getArguments().getSerializable("city");
+
+                if(editCity != null) {
+                    editCityName.setText(editCity.getName());
+                    editProvinceName.setText(editCity.getProvince());
+                }
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             return builder
                     .setView(view)
-                    .setTitle("Add a city")
+                    .setTitle(editCity == null ? "Add a city": "Edit a city")
                     .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Add", (dialog, which) -> {
+                    .setPositiveButton(editCity == null ? "Add" : "Save", (dialog, which) -> {
                         String cityName = editCityName.getText().toString();
                         String provinceName = editProvinceName.getText().toString();
-                        listener.addCity(new City(cityName, provinceName));
+
+                        if (editCity == null) {
+                            listener.addCity(new City(cityName, provinceName));
+                        } else {
+                            editCity.setName(cityName);
+                            editCity.setProvince(provinceName);
+                            listener.editCity();
+                        }
+
                     })
                     .create();
     }
